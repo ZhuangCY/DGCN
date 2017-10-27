@@ -1,16 +1,2 @@
-The source code of our Dual Graph Convolutional Networks (DGCN) method,
-Which is implemented by the python deep learning framework: Theano.
 
-----About the datasets----
-In the ".\data" folder, we have shared all the four datasets used in our paper.
-    1. citeseer, 2. cora, 3. pubmed: someone can also obtain this dataset in the following urls:
-                                     https://github.com/kimiyoung/planetoid; https://github.com/tkipf/gcn.
-    4. nell_full: the raw data could be obtained from https://github.com/kimiyoung/planetoid.
-                  we are the first who shared the after-preprocessed dataset.
-
-
-----About running the code----
-Command line: python Test.py [dataset]
-
-[dataset] could be: citeseer, cora, pubmed, nell_full.
 
