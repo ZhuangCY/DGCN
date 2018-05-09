@@ -4,7 +4,7 @@
 
 This is a Theano implementation of DGCN, a Dual Graph Convolutional Networks method for graph-based semi-supervised classification proposed in the following paper:
 
-[Dual Graph Convolutional Networks for Graph-Based Semi-Supervised Classification]().
+[Dual Graph Convolutional Networks for Graph-Based Semi-Supervised Classification](https://www.researchgate.net/publication/324514333_Dual_Graph_Convolutional_Networks_for_Graph-Based_Semi-Supervised_Classification).
 Chenyi Zhuang, Qiang Ma.
 WWW 2018.
 
