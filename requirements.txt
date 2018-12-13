@@ -1,0 +1,5 @@
+networkx
+matplotlib
+scipy
+theano
+https://github.com/Lasagne/Lasagne/archive/master.zip
