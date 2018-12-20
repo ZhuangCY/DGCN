@@ -7,40 +7,21 @@ import theano.tensor as T
 import time
 
 from Model import DGCN
-from utilities import diffusion_fun_sparse, _PPMI_sparse, _shift, _normalize_diffusion_matrix, \
+from utilities import diffusion_fun_sparse, \
     diffusion_fun_improved_ppmi_dynamic_sparsity, get_scaled_unsup_weight_max, rampup
 
 
 def test_DGCN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.00,
               n_epochs=200, dataset='cora', dropout_rate=0.3,
               hidden_size=32, cons=1, tper=0.1):
-    is_nell = False
+    adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = dp.load_graph_data(dataset)
+    train_mask = np.reshape(train_mask, (-1, len(train_mask)))
+    val_mask = np.reshape(val_mask, (-1, len(val_mask)))
+    test_mask = np.reshape(test_mask, (-1, len(test_mask)))
 
-    #### load data ####
-    if dataset == 'nell_full':
-        adj, features, y_val, y_train, y_test, val_mask, train_mask, test_mask = dp.load_nell_data()
-        train_mask = np.reshape(train_mask, (-1, len(train_mask)))
-        val_mask = np.reshape(val_mask, (-1, len(val_mask)))
-        test_mask = np.reshape(test_mask, (-1, len(test_mask)))
-
-        #### obtain diffusion and ppmi matrices, format=csc
-        diffusions = diffusion_fun_sparse(adj.tocsc())
-        rw = dp.load_nell_rw()
-        print "Calculating the PPMI..."
-        pmi = _PPMI_sparse(rw)
-        pmi = _shift(pmi, k=1.0)
-        ppmi = _normalize_diffusion_matrix(pmi.tocsc())
-        is_nell = True
-    else:
-        adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = dp.load_graph_data(dataset)
-        train_mask = np.reshape(train_mask, (-1, len(train_mask)))
-        val_mask = np.reshape(val_mask, (-1, len(val_mask)))
-        test_mask = np.reshape(test_mask, (-1, len(test_mask)))
-        # print test_mask.sum()
-
-        #### obtain diffusion and ppmi matrices
-        diffusions = diffusion_fun_sparse(adj.tocsc())
-        ppmi = diffusion_fun_improved_ppmi_dynamic_sparsity(adj, path_len=2, k=1.0)
+    #### obtain diffusion and ppmi matrices
+    diffusions = diffusion_fun_sparse(adj.tocsc())
+    ppmi = diffusion_fun_improved_ppmi_dynamic_sparsity(adj, path_len=2, k=1.0)
 
     #### construct the classifier model ####
     rng = np.random.RandomState(1234)
@@ -52,7 +33,6 @@ def test_DGCN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.00,
     feature_size = features.shape[1]
     label_size = y_train.shape[1]
     layer_sizes = [(feature_size, hidden_size), (hidden_size, label_size)]
-    # layer_sizes = [(feature_size, 500), (500, 64), (64, label_size)]
 
     print "Convolution Layers:" + str(layer_sizes)
 
@@ -63,7 +43,7 @@ def test_DGCN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.00,
         diffusion=tD,
         ppmi=tP,
         dropout_rate=dropout_rate,
-        nell_dataset=is_nell
+        nell_dataset=False
     )
 
     #### loss function ####
@@ -143,7 +123,6 @@ def test_DGCN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.00,
 
         ramp_up = rampup(epoch, scaled_unsup_weight_max, exp=5.0, rampup_length=120)
         ramp_up = np.asarray(ramp_up, dtype=theano.config.floatX)
-        # ramp_up = 0.0 # collapse to GCN
 
         _train_cost = train_model(y_train.astype(theano.config.floatX),
                                   train_mask.astype(theano.config.floatX),
@@ -176,13 +155,11 @@ def test_DGCN(learning_rate=0.01, L1_reg=0.00, L2_reg=0.00,
     print("Best Test Acc:", "%.5f" % (max(accuracys)))
     return test_acc, max(accuracys)
 
+
 if __name__ == "__main__":
     dataset = sys.argv[1]
     print "Testing on the dataset: " + dataset
-    if dataset == 'nell_full':
-        res = test_DGCN(dataset='nell_full', learning_rate=0.002,
-                        dropout_rate=0.1, n_epochs=600, hidden_size=64)
-    elif dataset == 'cora' or dataset == 'citeseer' or dataset == 'pubmed':
+    if dataset == 'cora' or dataset == 'citeseer' or dataset == 'pubmed':
         res = test_DGCN(dataset=dataset, learning_rate=0.05,
                         dropout_rate=0.1, n_epochs=300, hidden_size=32)
         print "Finished"

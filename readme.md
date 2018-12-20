@@ -10,13 +10,21 @@ WWW 2018.
 
 Please cite our paper if you use this code in your own work.
 
+## Requirements
+
+* python 2.7
+* theano
+* networkx
+* scipy
+* Lasagne
+
 ## Run the demo
 
 ```bash
 python Test.py [dataset]
 ```
 
-[dataset] could be strings: "citeseer", "cora", "pubmed" and "nell_full".
+[dataset] could be strings: "citeseer", "cora", and "pubmed".
 
 ## Models
 

@@ -1,37 +1,10 @@
 import networkx as nx
-import matplotlib.pyplot as plt
 import numpy as np
 from random import random
 import cPickle
 import scipy.sparse as sp
 from collections import defaultdict
 import random
-
-
-def import_karate_ckub_graph():
-    G = nx.karate_club_graph()
-    numOFnodes = len(G.nodes())
-    att = nx.get_node_attributes(G, 'club')
-    # the X: |nodes| multiply |features|
-    X = np.identity(numOFnodes)
-    # the Y: 1 multiply |nodes|
-    label_map = {'Mr. Hi': 1.0,  # red
-                 'Officer': 2.0}  # blue
-    Y = [label_map.get(att.get(node)) for node in G.nodes()]
-    # the A: |nodes| multiply |nodes|
-    A = nx.adjacency_matrix(G)
-    return X, Y, A
-
-
-def draw_karate_ckub_graph():
-    G = nx.karate_club_graph()
-    att = nx.get_node_attributes(G, 'club')
-
-    val_map = {'Mr. Hi': 'r',
-               'Officer': 'g'}
-    values = [val_map.get(att.get(node), 0.25) for node in G.nodes()]
-    nx.draw(G, cmap=plt.get_cmap('jet'), node_color=values, with_labels=True)
-    plt.show()
 
 
 def parse_index_file(filename):
